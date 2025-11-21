@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+        
+        
+
+enum Status {
+  PLANNING     
+  READING
+  COMPLETED
+  PAUSED
+  DROPPED
+}
+
+
+model User {
+  id           String         @id @default(cuid())
+  username     String         @unique
+  passwordHash String
+  displayName  String?
+  favorites    Favorite[]
+  statuses     ReadingStatus[]
+  comments     Comment[]
+  createdAt    DateTime       @default(now())
+}
+
+model Manhwa {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  coverUrl    String?
+  genres      String[]    // PostgreSQL text[]
+  createdAt   DateTime    @default(now())
+  comments    Comment[]
+  favorites   Favorite[]
+  statuses    ReadingStatus[]
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  manhwaId  String
+  user      User     @relation(fields: [userId], references: [id])
+  manhwa    Manhwa   @relation(fields: [manhwaId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, manhwaId])
+}
+
+model ReadingStatus {
+  id        String   @id @default(cuid())
+  userId    String
+  manhwaId  String
+  status    Status   @default(WATCHING)
+  progress  Int      @default(0)
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  manhwa    Manhwa   @relation(fields: [manhwaId], references: [id])
+
+  @@unique([userId, manhwaId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  userId    String
+  manhwaId  String
+  body      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  manhwa    Manhwa   @relation(fields: [manhwaId], references: [id])
+}
