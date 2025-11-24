@@ -7,17 +7,14 @@ datasource db {
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
-        
-        
 
 enum Status {
-  PLANNING     
+  PLANNING
   READING
   COMPLETED
   PAUSED
   DROPPED
 }
-
 
 model User {
   id           String         @id @default(cuid())
@@ -32,10 +29,11 @@ model User {
 
 model Manhwa {
   id          String      @id @default(cuid())
+  slug        String      @unique
   title       String
   description String?
   coverUrl    String?
-  genres      String[]    // PostgreSQL text[]
+  genres      String[]    @default([])
   createdAt   DateTime    @default(now())
   comments    Comment[]
   favorites   Favorite[]
@@ -57,7 +55,7 @@ model ReadingStatus {
   id        String   @id @default(cuid())
   userId    String
   manhwaId  String
-  status    Status   @default(WATCHING)
+  status    Status   @default(PLANNING)
   progress  Int      @default(0)
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id])
