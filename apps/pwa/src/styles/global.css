@@ -1,0 +1,23 @@
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #0d0d0d;
+  color: #eee;
+  font-family: system-ui, sans-serif;
+}
+a {
+  color: #8dd;
+  text-decoration: none;
+}
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}

@@ -1,0 +1,17 @@
+{
+  "name": "ManhwaVault",
+  "short_name": "ManhwaVault",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "description": "Track manhwa favorites, progress, library, comments.",
+  "icons": [
+    {
+      "src": "/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
