@@ -1,5 +1,15 @@
 import { prisma } from "../../lib/prisma";
 
+// NEW: reading statuses constant & type
+export const READING_STATUSES = [
+  "PLANNING",
+  "READING",
+  "COMPLETED",
+  "PAUSED",
+  "DROPPED",
+] as const;
+type ReadingStatus = (typeof READING_STATUSES)[number];
+
 interface ListOpts {
   search?: string;
   genre?: string;
@@ -81,7 +91,7 @@ export async function upsertReadingStatusBySlug(
   slug: string,
   userId: string,
   status: any,
-  progress?: number,
+  progress?: number
 ) {
   const manhwa = await prisma.manhwa.findUnique({ where: { slug } });
   if (!manhwa) throw new Error("NOT_FOUND");
@@ -126,7 +136,7 @@ export async function listCommentsBySlug(slug: string) {
 export async function createCommentBySlug(
   slug: string,
   userId: string,
-  body: string,
+  body: string
 ) {
   const manhwa = await prisma.manhwa.findUnique({ where: { slug } });
   if (!manhwa) throw new Error("NOT_FOUND");
@@ -134,3 +144,7 @@ export async function createCommentBySlug(
     data: { userId, manhwaId: manhwa.id, body },
   });
 }
+
+// MOVED to modules/user/user.service.ts:
+// - listCommentsByUser
+// - listManhwaByUserStatus

@@ -8,6 +8,7 @@ import {
   upsertReadingStatusBySlug,
   listCommentsBySlug,
   createCommentBySlug,
+  READING_STATUSES,
 } from "./manhwa.service";
 import { z } from "zod";
 
@@ -24,6 +25,11 @@ router.get("/", async (req, res) => {
     data,
     meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
   });
+});
+
+// NEW: statuses enumeration helper
+router.get("/statuses", (_req, res) => {
+  res.json({ success: true, data: READING_STATUSES });
 });
 
 // DETAIL
@@ -73,7 +79,7 @@ router.patch("/:slug/status", auth, async (req: any, res) => {
       req.params.slug,
       req.userId,
       parsed.data.status,
-      parsed.data.progress,
+      parsed.data.progress
     );
     res.json({ success: true, data: updated });
   } catch (e: any) {
@@ -114,7 +120,7 @@ router.post("/:slug/comments", auth, async (req: any, res) => {
     const created = await createCommentBySlug(
       req.params.slug,
       req.userId,
-      parsed.data.body,
+      parsed.data.body
     );
     res.status(201).json({ success: true, data: created });
   } catch (e: any) {
