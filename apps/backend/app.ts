@@ -23,3 +23,5 @@ app.get("/api/v1/health", (_req, res) => {
 app.use("/api/v1", routes);
 
 app.use(errorHandler);
+
+export default app;
