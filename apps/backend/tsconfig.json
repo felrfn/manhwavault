@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2021",
     "lib": ["ES2021"],
-    "module": "ESNext",
+    "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "strict": true,
@@ -10,5 +10,14 @@
     "outDir": "dist",
     "resolveJsonModule": true
   },
-  "include": ["src", "prisma"]
+  "include": [
+    "*.ts",
+    "config",
+    "lib",
+    "middlewares",
+    "modules",
+    "prisma",
+    "routes",
+    "utils"
+  ]
 }

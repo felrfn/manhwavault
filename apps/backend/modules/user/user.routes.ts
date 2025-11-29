@@ -1,8 +1,12 @@
 import { Router } from "express";
-import { parsePagination } from "../../utils/pagination";
-import { prisma } from "../../lib/prisma";
-import { listCommentsByUser, listManhwaByUserStatus } from "./user.service";
-import { READING_STATUSES } from "../manhwa/manhwa.service";
+import { parsePagination } from "../../utils/pagination.js";
+import { prisma } from "../../lib/prisma.js";
+import {
+  listCommentsByUser,
+  listManhwaByUserStatus,
+  listFavoritesByUser,
+} from "./user.service.js";
+import { READING_STATUSES } from "../manhwa/manhwa.service.js";
 
 const router = Router();
 
@@ -59,6 +63,21 @@ router.get("/:username/status/:status", async (req, res) => {
     data,
     meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
   });
+});
+
+// GET /user/:username/favorites
+router.get("/:username/favorites", async (req, res) => {
+  const user = await prisma.user.findUnique({
+    where: { username: req.params.username },
+  });
+  if (!user)
+    return res.status(404).json({
+      success: false,
+      error: { code: "NOT_FOUND", message: "User not found" },
+    });
+
+  const { data } = await listFavoritesByUser(user.id);
+  res.json({ success: true, data });
 });
 
 export default router;

@@ -1,4 +1,4 @@
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../lib/prisma.js";
 
 type ReadingStatus =
   | "PLANNING"
@@ -12,7 +12,7 @@ export async function listCommentsByUser(
   page: number,
   limit: number
 ) {
-  const [comments, total] = await Promise.all([
+  const [comments, total] = await prisma.$transaction([
     prisma.comment.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -35,7 +35,7 @@ export async function listManhwaByUserStatus(
   page: number,
   limit: number
 ) {
-  const [rows, total] = await Promise.all([
+  const [rows, total] = await prisma.$transaction([
     prisma.readingStatus.findMany({
       where: { userId, status },
       orderBy: { updatedAt: "desc" },
@@ -64,4 +64,25 @@ export async function listManhwaByUserStatus(
   }));
 
   return { data, total };
+}
+
+export async function listFavoritesByUser(userId: string) {
+  const rows = await prisma.favorite.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      manhwa: {
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          coverUrl: true,
+          genres: true,
+          createdAt: true,
+        },
+      },
+    },
+  });
+  const data = rows.map((r) => r.manhwa);
+  return { data };
 }

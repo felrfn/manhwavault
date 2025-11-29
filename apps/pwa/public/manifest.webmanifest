@@ -1,17 +1,78 @@
 {
   "name": "ManhwaVault",
   "short_name": "ManhwaVault",
+  "id": "/",
+  "scope": "/",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#111111",
-  "theme_color": "#111111",
-  "description": "Track manhwa favorites, progress, library, comments.",
+  "background_color": "#e0dee0",
+  "theme_color": "#7a56ae",
+  "orientation": "portrait",
+  "description": "ManhwaVault PWA to browse and read manhwa offline.",
+  "categories": ["entertainment", "books"],
   "icons": [
     {
-      "src": "/icon-512.svg",
+      "src": "/icons/manhwavault-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/manhwavault-icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any"
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/manhwavault-icon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/manhwavault-icon-16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/manhwavault-icon-192.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Library",
+      "url": "/library",
+      "icons": [
+        {
+          "src": "/icons/manhwavault-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Favorites",
+      "url": "/library?favorites=1",
+      "icons": [
+        {
+          "src": "/icons/manhwavault-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "url": "/profile",
+      "icons": [
+        {
+          "src": "/icons/manhwavault-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
 }

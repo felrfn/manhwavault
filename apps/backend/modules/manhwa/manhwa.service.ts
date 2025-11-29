@@ -1,4 +1,4 @@
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../lib/prisma.js";
 
 // NEW: reading statuses constant & type
 export const READING_STATUSES = [
@@ -28,7 +28,7 @@ export async function listManhwa(opts: ListOpts) {
   }
   if (genre) where.genres = { has: genre };
 
-  const [data, total] = await Promise.all([
+  const [data, total] = await prisma.$transaction([
     prisma.manhwa.findMany({
       where,
       orderBy: { createdAt: "desc" },

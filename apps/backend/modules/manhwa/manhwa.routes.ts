@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { authOptional, auth } from "../../middlewares/auth";
-import { parsePagination } from "../../utils/pagination";
+import { authOptional, auth } from "../../middlewares/auth.js";
+import { parsePagination } from "../../utils/pagination.js";
 import {
   listManhwa,
   manhwaDetail,
@@ -9,7 +9,7 @@ import {
   listCommentsBySlug,
   createCommentBySlug,
   READING_STATUSES,
-} from "./manhwa.service";
+} from "./manhwa.service.js";
 import { z } from "zod";
 
 const router = Router();

@@ -1,72 +1,87 @@
-import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { FormEvent, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { setToken } from "../lib/auth";
+import { postJson } from "../lib/api";
 
-export default function RegisterPage() {
-  const { register } = useAuth();
-  const nav = useNavigate();
-  const [username, setUsername] = useState("");
+export default function Register() {
   const [displayName, setDisplayName] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const nav = useNavigate();
 
-  async function submit(e: React.FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    setErr("");
+    setError(null);
+    setLoading(true);
     try {
-      await register(username, password, displayName || undefined);
-      nav("/");
-    } catch {
-      setErr("Register gagal");
+      // Register
+      await postJson<{ id: string; username: string }>("auth/register", {
+        username,
+        password,
+        displayName: displayName || undefined,
+      });
+      // Then login to obtain token
+      const login = await postJson<{ token: string }>("auth/login", {
+        username,
+        password,
+      });
+      setToken(login.token);
+      nav("/app", { replace: true });
+    } catch (e: any) {
+      setError(e.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <form onSubmit={submit} style={{ maxWidth: 320 }}>
-      <h2>Register</h2>
-      {err && <div style={{ color: "tomato", marginBottom: 8 }}>{err}</div>}
-      <input
-        style={inputStyle}
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        style={inputStyle}
-        placeholder="Display Name (opsional)"
-        value={displayName}
-        onChange={(e) => setDisplayName(e.target.value)}
-      />
-      <input
-        style={inputStyle}
-        placeholder="Password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button style={btnStyle} type="submit">
-        Register
-      </button>
-    </form>
+    <div className="auth-page">
+      <div className="auth-card">
+        <h1>Create account</h1>
+        <p className="muted">Join ManhwaVault and start tracking</p>
+        {error && (
+          <p className="muted small" style={{ color: "#ff8c8c" }}>
+            {error}
+          </p>
+        )}
+        <form onSubmit={onSubmit} className="form">
+          <label>
+            <span>Display name</span>
+            <input
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="Your display name (optional)"
+            />
+          </label>
+          <label>
+            <span>Username</span>
+            <input
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="yourusername"
+            />
+          </label>
+          <label>
+            <span>Password</span>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Create a password"
+            />
+          </label>
+          <button className="btn primary" type="submit" disabled={loading}>
+            {loading ? "Creating…" : "Create account"}
+          </button>
+        </form>
+        <p className="muted small">
+          Already have an account? <Link to="/login">Log in</Link>
+        </p>
+      </div>
+    </div>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  display: "block",
-  width: "100%",
-  margin: "6px 0",
-  padding: "10px",
-  border: "1px solid #333",
-  background: "#222",
-  color: "#fff",
-  borderRadius: 8,
-};
-const btnStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "10px",
-  background: "#444",
-  color: "#fff",
-  border: "none",
-  borderRadius: 8,
-  marginTop: 8,
-};

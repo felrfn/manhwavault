@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyJwt } from "../utils/jwt";
+import { verifyJwt } from "../utils/jwt.js";
 
 export interface AuthRequest extends Request {
   userId?: string;
@@ -22,13 +22,13 @@ export function auth(req: AuthRequest, res: Response, next: NextFunction) {
 export function authOptional(
   req: AuthRequest,
   _res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) {
   const header = req.headers.authorization;
   if (header) {
     try {
       const payload = verifyJwt<{ sub: string }>(
-        header.replace(/^Bearer\s+/i, ""),
+        header.replace(/^Bearer\s+/i, "")
       );
       req.userId = payload.sub;
     } catch {

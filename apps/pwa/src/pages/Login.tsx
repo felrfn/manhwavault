@@ -1,69 +1,74 @@
-import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { FormEvent, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { setToken } from "../lib/auth";
+import { postJson } from "../lib/api";
 
-export default function LoginPage() {
-  const { login } = useAuth();
-  const nav = useNavigate();
+export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const nav = useNavigate();
+  const loc = useLocation() as any;
 
-  async function submit(e: React.FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    setErr("");
+    setError(null);
+    setLoading(true);
     try {
-      await login(username, password);
-      nav("/");
-    } catch {
-      setErr("Login gagal");
+      const data = await postJson<{ token: string }>("auth/login", {
+        username,
+        password,
+      });
+      setToken(data.token);
+      const to = (loc.state as any)?.from?.pathname || "/app/library";
+      nav(to, { replace: true });
+    } catch (e: any) {
+      setError(e.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <form onSubmit={submit} style={{ maxWidth: 320 }}>
-      <h2>Login</h2>
-      {err && <div style={{ color: "tomato", marginBottom: 8 }}>{err}</div>}
-      <input
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        style={inputStyle}
-      />
-      <input
-        placeholder="Password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        style={inputStyle}
-      />
-      <button style={btnStyle} type="submit">
-        Login
-      </button>
-      <p style={{ marginTop: 10 }}>
-        Belum punya akun? <Link to="/register">Register</Link>
-      </p>
-    </form>
+    <div className="auth-page">
+      <div className="auth-card">
+        <h1>Log in</h1>
+        <p className="muted">Welcome back to ManhwaVault</p>
+        {error && (
+          <p className="muted small" style={{ color: "#ff8c8c" }}>
+            {error}
+          </p>
+        )}
+        <form onSubmit={onSubmit} className="form">
+          <label>
+            <span>Username</span>
+            <input
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="yourusername"
+            />
+          </label>
+          <label>
+            <span>Password</span>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </label>
+          <button className="btn primary" type="submit" disabled={loading}>
+            {loading ? "Signing in…" : "Sign in"}
+          </button>
+        </form>
+        <p className="muted small">
+          No account? <Link to="/register">Create one</Link>
+        </p>
+        <p className="muted tiny">Secure login powered by API.</p>
+      </div>
+    </div>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  display: "block",
-  width: "100%",
-  margin: "6px 0",
-  padding: "10px",
-  border: "1px solid #333",
-  background: "#222",
-  color: "#fff",
-  borderRadius: 8,
-};
-
-const btnStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "10px",
-  background: "#444",
-  color: "#fff",
-  border: "none",
-  borderRadius: 8,
-  marginTop: 8,
-};
