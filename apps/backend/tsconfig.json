@@ -10,14 +10,5 @@
     "outDir": "dist",
     "resolveJsonModule": true
   },
-  "include": [
-    "*.ts",
-    "config",
-    "lib",
-    "middlewares",
-    "modules",
-    "prisma",
-    "routes",
-    "utils"
-  ]
+  "include": [".", "src", "prisma", "*.ts"]
 }
