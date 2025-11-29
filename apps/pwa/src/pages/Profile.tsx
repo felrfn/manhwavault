@@ -434,6 +434,18 @@ export default function Profile() {
                 </button>
               </div>
               <hr style={{ borderColor: "#ffffff22" }} />
+              <button
+                className="btn danger"
+                style={{ marginTop: 8 }}
+                onClick={() => {
+                  import("../lib/auth").then(({ logout }) => {
+                    logout();
+                    window.location.href = "/";
+                  });
+                }}
+              >
+                Log Out
+              </button>
               <h3 style={{ margin: 0 }}>Change Password</h3>
               <label style={{ display: "grid", gap: 6 }}>
                 <span className="muted small">Old Password</span>
