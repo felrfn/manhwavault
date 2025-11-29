@@ -111,7 +111,7 @@ export default function Review() {
               <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
                 <h3 style={{ margin: 0 }}>{r.manhwa?.title}</h3>
                 <span className="muted small">
-                  oleh {r.user?.displayName || r.user?.username} •{" "}
+                  by {r.user?.displayName || r.user?.username} •{" "}
                   {new Date(r.createdAt).toLocaleDateString()}
                 </span>
               </div>

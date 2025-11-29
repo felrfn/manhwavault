@@ -142,6 +142,9 @@ export async function createCommentBySlug(
   if (!manhwa) throw new Error("NOT_FOUND");
   return prisma.comment.create({
     data: { userId, manhwaId: manhwa.id, body },
+    include: {
+      user: { select: { username: true, displayName: true } },
+    },
   });
 }
 
