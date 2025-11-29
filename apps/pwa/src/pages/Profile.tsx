@@ -193,7 +193,7 @@ export default function Profile() {
           ))}
           {!loading && recent.length === 0 && (
             <p className="muted" style={{ fontSize: 12 }}>
-              Belum ada aktivitas.
+              No recent activity.
             </p>
           )}
         </div>
