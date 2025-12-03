@@ -8,6 +8,7 @@ type Manhwa = {
   title: string;
   coverUrl: string;
   genres?: string[];
+  avgRating?: number;
 };
 
 type ListEnvelope = {
@@ -106,6 +107,7 @@ export default function Browse() {
               title={m.title}
               imageUrl={m.coverUrl}
               slug={m.slug}
+              avgRating={m.avgRating}
             />
           ))}
         </div>

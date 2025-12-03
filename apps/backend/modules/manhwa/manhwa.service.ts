@@ -46,7 +46,31 @@ export async function listManhwa(opts: ListOpts) {
     prisma.manhwa.count({ where }),
   ]);
 
-  return { data, total };
+  const ids = data.map((m: any) => m.id);
+  const rating = (prisma as any).rating;
+  const grouped =
+    ids.length && rating
+      ? await rating.groupBy({
+          by: ["manhwaId"],
+          where: { manhwaId: { in: ids } },
+          _avg: { score: true },
+        })
+      : [];
+  const avgMap = new Map(
+    (
+      grouped as Array<{ manhwaId: string; _avg: { score: number | null } }>
+    ).map((g) => [
+      g.manhwaId,
+      Number(((g._avg.score ?? 0) as number).toFixed(2)),
+    ])
+  );
+
+  const enriched = data.map((m: any) => ({
+    ...m,
+    avgRating: avgMap.get(m.id) ?? 0,
+  }));
+
+  return { data: enriched, total };
 }
 
 export async function manhwaDetail(slug: string, userId?: string) {
@@ -61,13 +85,24 @@ export async function manhwaDetail(slug: string, userId?: string) {
     const status = await prisma.readingStatus.findUnique({
       where: { userId_manhwaId: { userId, manhwaId: manhwa.id } },
     });
+    const rating = await (prisma as any).rating.findUnique({
+      where: { userId_manhwaId: { userId, manhwaId: manhwa.id } },
+    });
     extras = {
       isFavorite: !!fav,
       readingStatus: status?.status ?? null,
       progress: status?.progress ?? null,
+      myRating: rating?.score ?? null,
     };
   }
-  return { ...manhwa, ...extras };
+  const agg = await (prisma as any).rating.aggregate({
+    where: { manhwaId: manhwa.id },
+    _avg: { score: true },
+    _count: { score: true },
+  });
+  const avgRating = Number((agg._avg.score ?? 0).toFixed(2));
+  const ratingCount = agg._count.score ?? 0;
+  return { ...manhwa, avgRating, ratingCount, ...extras };
 }
 
 export async function toggleFavoriteBySlug(slug: string, userId: string) {
@@ -151,3 +186,25 @@ export async function createCommentBySlug(
 // MOVED to modules/user/user.service.ts:
 // - listCommentsByUser
 // - listManhwaByUserStatus
+
+export async function upsertRatingBySlug(
+  slug: string,
+  userId: string,
+  score: number
+) {
+  if (score < 1 || score > 5) throw new Error("VALIDATION_ERROR");
+  const manhwa = await prisma.manhwa.findUnique({ where: { slug } });
+  if (!manhwa) throw new Error("NOT_FOUND");
+  const existing = await (prisma as any).rating.findUnique({
+    where: { userId_manhwaId: { userId, manhwaId: manhwa.id } },
+  });
+  if (!existing) {
+    return (prisma as any).rating.create({
+      data: { userId, manhwaId: manhwa.id, score },
+    });
+  }
+  return (prisma as any).rating.update({
+    where: { id: existing.id },
+    data: { score },
+  });
+}

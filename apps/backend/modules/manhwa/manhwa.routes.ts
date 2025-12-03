@@ -9,6 +9,7 @@ import {
   listCommentsBySlug,
   createCommentBySlug,
   READING_STATUSES,
+  upsertRatingBySlug,
 } from "./manhwa.service.js";
 import { z } from "zod";
 
@@ -137,3 +138,38 @@ router.post("/:slug/comments", auth, async (req: any, res) => {
 });
 
 export default router;
+
+// RATING CELENJ
+const ratingSchema = z.object({ score: z.number().int().min(1).max(5) });
+
+router.put("/:slug/rating", auth, async (req: any, res) => {
+  const parsed = ratingSchema.safeParse(req.body);
+  if (!parsed.success)
+    return res.status(400).json({
+      success: false,
+      error: { code: "VALIDATION_ERROR", issues: parsed.error.flatten() },
+    });
+  try {
+    const updated = await upsertRatingBySlug(
+      req.params.slug,
+      req.userId,
+      parsed.data.score
+    );
+    res.json({ success: true, data: updated });
+  } catch (e: any) {
+    if (e.message === "NOT_FOUND")
+      return res.status(404).json({
+        success: false,
+        error: { code: "NOT_FOUND", message: "Manhwa not found" },
+      });
+    if (e.message === "VALIDATION_ERROR")
+      return res.status(400).json({
+        success: false,
+        error: { code: "VALIDATION_ERROR", message: "Score must be 1-5" },
+      });
+    res.status(500).json({
+      success: false,
+      error: { code: "SERVER_ERROR", message: "Internal error" },
+    });
+  }
+});

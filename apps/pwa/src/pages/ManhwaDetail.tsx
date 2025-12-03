@@ -14,6 +14,9 @@ type Detail = {
   isFavorite?: boolean;
   readingStatus?: string | null;
   progress?: number | null;
+  avgRating?: number;
+  ratingCount?: number;
+  myRating?: number | null;
 };
 
 type Comment = {
@@ -36,6 +39,7 @@ export default function ManhwaDetail() {
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [commentBody, setCommentBody] = useState("");
   const [commentBusy, setCommentBusy] = useState(false);
+  const [ratingBusy, setRatingBusy] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -175,6 +179,48 @@ export default function ManhwaDetail() {
     }
   }
 
+  async function setRating(score: number) {
+    if (!detail || ratingBusy) return;
+    const token = getToken();
+    if (!token) return;
+    const prevMyRating = detail.myRating ?? null;
+    try {
+      setRatingBusy(true);
+      setDetail((d) => (d ? { ...d, myRating: score } : d));
+      const res = await fetch(
+        `${(import.meta as any).env.VITE_API_BASE.replace(
+          /\/$/,
+          ""
+        )}/manhwa/${encodeURIComponent(detail.slug)}/rating`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ score }),
+        }
+      );
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || "Failed to set rating");
+      }
+      // Refresh avg/ratingCount from detail endpoint for accuracy
+      const d = await getJson<Detail>(
+        `/manhwa/${encodeURIComponent(detail.slug)}`,
+        undefined,
+        { Authorization: `Bearer ${token}` }
+      );
+      setDetail(d);
+      toast.success("Rating disimpan");
+    } catch (e) {
+      setDetail((d) => (d ? { ...d, myRating: prevMyRating } : d));
+      toast.error(e instanceof Error ? e.message : "Gagal menyimpan rating");
+    } finally {
+      setRatingBusy(false);
+    }
+  }
+
   if (loading) {
     return (
       <div
@@ -226,6 +272,11 @@ export default function ManhwaDetail() {
         </div>
         <div className="md-body">
           <h1 className="md-title">{detail.title}</h1>
+          {typeof detail.avgRating === "number" && (
+            <p className="muted" style={{ marginTop: 4 }}>
+              Rating: {detail.avgRating} / 5 ({detail.ratingCount || 0})
+            </p>
+          )}
           <div className="md-actions">
             <button
               className={`icon-btn heart ${detail.isFavorite ? "active" : ""}`}
@@ -248,6 +299,22 @@ export default function ManhwaDetail() {
                 </option>
               ))}
             </select>
+          </div>
+          <div className="md-rating" style={{ marginTop: 8 }}>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                className={`icon-btn star ${
+                  (detail.myRating || 0) >= n ? "active" : ""
+                }`}
+                onClick={() => setRating(n)}
+                disabled={ratingBusy}
+                aria-label={`Rate ${n}`}
+                title={`Beri rating ${n}`}
+              >
+                {(detail.myRating || 0) >= n ? "★" : "☆"}
+              </button>
+            ))}
           </div>
           <div className={`md-description ${expanded ? "expanded" : ""}`}>
             <p>{truncated}</p>

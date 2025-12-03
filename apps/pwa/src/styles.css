@@ -394,6 +394,21 @@ a {
   text-overflow: ellipsis;
 }
 
+.manhwa-rating-stars {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 2px;
+  font-size: 14px;
+}
+.manhwa-rating-stars .on {
+  color: #ffd54f;
+}
+.manhwa-rating-stars .off {
+  color: #ffffff88;
+}
+
 /* Detail page */
 .manhwa-detail {
   max-width: 1000px;
@@ -460,6 +475,31 @@ a {
   color: var(--text);
   padding: 10px 12px;
   border-radius: 12px;
+}
+.md-rating {
+  display: flex;
+  gap: 4px;
+}
+.icon-btn.star {
+  background: none;
+  border: none;
+  padding: 0;
+  width: auto;
+  height: auto;
+  font-size: 24px;
+  line-height: 1;
+  color: #cccccc;
+  cursor: pointer;
+}
+.icon-btn.star:hover {
+  color: #ffe082;
+}
+.icon-btn.star.active {
+  color: #ffd54f;
+}
+.icon-btn.star:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .md-description p {
   margin: 0 0 4px;

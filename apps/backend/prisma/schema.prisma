@@ -24,6 +24,7 @@ model User {
   favorites    Favorite[]
   statuses     ReadingStatus[]
   comments     Comment[]
+  ratings      Rating[]
   createdAt    DateTime       @default(now())
 }
 
@@ -38,6 +39,7 @@ model Manhwa {
   comments    Comment[]
   favorites   Favorite[]
   statuses    ReadingStatus[]
+  ratings     Rating[]
 }
 
 model Favorite {
@@ -72,4 +74,17 @@ model Comment {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
   manhwa    Manhwa   @relation(fields: [manhwaId], references: [id])
+}
+
+model Rating {
+  id        String   @id @default(cuid())
+  userId    String
+  manhwaId  String
+  score     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  manhwa    Manhwa   @relation(fields: [manhwaId], references: [id])
+
+  @@unique([userId, manhwaId])
 }
